@@ -1,0 +1,8 @@
+{
+    "java.project.sourcePaths": ["src"],
+    "java.project.outputPath": "bin",
+    "java.project.referencedLibraries": [
+        "C:/Users/Utilisateur/Downloads/openjfx-24_windows-x64_bin-sdk/javafx-sdk-24/lib/*.jar",
+        "C:/Users/Utilisateur/Desktop/projBDD/bdd/test1/src/ojdbc8.jar"
+    ]
+}
