@@ -1,3 +1,13 @@
+/**
+ * Application de gestion de bibliothèque développée avec JavaFX.
+ * Permet de gérer les livres, les étudiants, les emprunts et les retours.
+ * Connexion à une base de données Oracle via JDBC.
+ * 
+ * Auteur : [Amenna]
+ * Version : 1.0
+ * Date : [23\04\2025]
+ */
+
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -19,8 +29,8 @@ import javafx.stage.Stage;
 
 public class GestionBibliothequeApp extends Application {
     private static final String URL = "jdbc:oracle:thin:@localhost:1521:xe"; // تأكد من تغيير اسم السيرفر وقاعدة البيانات
-    private static final String USER = "probdd";  // ضع اسم المستخدم الخاص بك
-    private static final String PASSWORD = "probddpass";  // ضع كلمة المرور الخاصة بك
+    private static final String USER = "probdd"; 
+    private static final String PASSWORD = "probddpass";  
 
         TextField txtCode = new TextField();
         TextField txtTitle = new TextField();
@@ -32,76 +42,87 @@ public class GestionBibliothequeApp extends Application {
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Gestion de la Bibliothèque");
         
-        // Boutons principaux
+       // Création des boutons de navigation principale
         Button btnManageBooks = new Button("Gérer les livres");
         Button btnManageStudents = new Button("Gérer les étudiants");
         Button btnBorrow = new Button("Emprunter un livre");
         Button btnReturn = new Button("Retourner un livre");
-      
-        // Gestion des actions des boutons
-        btnManageBooks.setOnAction(e -> openManageBooksWindow());
-        btnManageStudents.setOnAction(e -> openManageStudentsWindow());
-        btnBorrow.setOnAction(e-> openBorrowWindow());
-        btnReturn.setOnAction(e -> openReturnWindow());
-        
+        Button btnLateReturns = new Button("Livres en retard");
+
+        // Association des événements aux boutons
+        btnManageBooks.setOnAction(_ -> openManageBooksWindow());
+        btnManageStudents.setOnAction(_ -> openManageStudentsWindow());
+        btnBorrow.setOnAction(_-> openBorrowWindow());
+        btnReturn.setOnAction(_ -> openReturnWindow());
+        btnLateReturns.setOnAction(_ -> showLateReturns());
+
+        // Disposition des boutons dans un VBox
         VBox layout = new VBox(50);
-        layout.getChildren().addAll(btnManageBooks, btnManageStudents, btnBorrow, btnReturn);
+        layout.getStyleClass().add("main-buttons");// Style CSS appliqué
         layout.setPadding(new Insets(50));
+        layout.getChildren().addAll(btnManageBooks, btnManageStudents, btnBorrow, btnReturn, btnLateReturns);
         
+        // Création de la scène principale
         Scene scene = new Scene(layout, 600, 550);
+        scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.show();
     }
+    /**
+ * Ouvre la fenêtre de gestion des livres.
+ * Permet à l'utilisateur de choisir parmi plusieurs actions : ajouter, modifier, supprimer ou rechercher un livre.
+ */
     private void openManageBooksWindow() {
         Stage bookStage = new Stage();
         bookStage.setTitle("Gestion des livres");
+        // Conteneur vertical pour les boutons
         VBox layout = new VBox(20);
+        layout.setAlignment(Pos.CENTER); 
+        layout.setPadding(new Insets(20));
+        // Boutons pour chaque fonctionnalité
         Button btnAdd = new Button("Ajouter un livre");
         Button btnEdit = new Button("Modifier un livre");
         Button btnDelete = new Button("Supprimer un livre");
         Button btnSearch = new Button("Rechercher un livre");
-        
-        layout.setAlignment(Pos.CENTER);  // لجعل الأزرار في وسط النافذة
-        btnAdd.setOnAction(e -> openAddBookWindow());
-        btnEdit.setOnAction(e -> openEditBookWindow());
-        btnDelete.setOnAction(e -> openDeleteBookWindow());
-        btnSearch.setOnAction(e -> openSearchBookWindow());
+        // Actions associées aux boutons
+        btnAdd.setOnAction(_ -> openAddBookWindow());
+        btnEdit.setOnAction(_ -> openEditBookWindow());
+        btnDelete.setOnAction(_ -> openDeleteBookWindow());
+        btnSearch.setOnAction(_ -> openSearchBookWindow());
         
         layout.getChildren().addAll(btnAdd, btnEdit, btnDelete, btnSearch);
-        layout.setPadding(new Insets(20));
         Scene scene = new Scene(layout, 600, 500);
+        scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
         bookStage.setScene(scene);
         bookStage.show();
     }
-
+    /**
+ * Ouvre une fenêtre pour ajouter un nouveau livre dans la base de données.
+ * Les informations sont saisies par l'utilisateur via des champs de texte,
+ * puis enregistrées en base avec une requête SQL INSERT.
+ */
     private void openAddBookWindow() {
         Stage addBookStage = new Stage();
         addBookStage.setTitle("Ajouter un livre");
-    
         VBox layout = new VBox(20);
         layout.setPadding(new Insets(20));
-    
+        // Champs de saisie pour les informations du livre
         Label lblCode = new Label("Code du livre:");
         TextField txtCode = new TextField();
-    
         Label lblTitle = new Label("Titre du livre:");
         TextField txtTitle = new TextField();
-    
         Label lblAuthor = new Label("Auteur:");
         TextField txtAuthor = new TextField();
-    
         Label lblCategory = new Label("Catégorie:");
         TextField txtCategory = new TextField();
-    
         Label lblYear = new Label("Année de publication:");
         TextField txtYear = new TextField();
-    
         Label lblQuantity = new Label("Quantité disponible:");
         TextField txtQuantity = new TextField();
     
         Button btnSubmit = new Button("Ajouter");
     
-     // فقط عناصر الواجهة هنا
+     // Ajouter tous les éléments à l'interface
      layout.getChildren().addAll(
         lblCode, txtCode,
         lblTitle, txtTitle,
@@ -112,8 +133,8 @@ public class GestionBibliothequeApp extends Application {
         btnSubmit
     );
 
-    // التعامل مع الضغط على الزر
-    btnSubmit.setOnAction(e -> {
+    // Événement lors du clic sur le bouton "Ajouter"
+    btnSubmit.setOnAction(_ -> {
         String code = txtCode.getText();
         String titre = txtTitle.getText();
         String auteur = txtAuthor.getText();
@@ -145,6 +166,7 @@ public class GestionBibliothequeApp extends Application {
     });
 
     Scene scene = new Scene(layout, 650, 700);
+    scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
     addBookStage.setScene(scene);
     addBookStage.show();
 
@@ -166,7 +188,7 @@ public class GestionBibliothequeApp extends Application {
         Button btnSearch = new Button("Rechercher");
         Button btnEdit = new Button("Modifier");
 
-        btnSearch.setOnAction(e -> {
+        btnSearch.setOnAction(_ -> {
             String code = txtCode.getText();
             try (Connection conn = DatabaseConnection.getConnection()) {
                 String sql = "SELECT * FROM livres WHERE code_livre = ?";
@@ -193,7 +215,7 @@ public class GestionBibliothequeApp extends Application {
             
         });
 
-        btnEdit.setOnAction(e -> {
+        btnEdit.setOnAction(_ -> {
     String code = txtCode.getText();
     String titre = txtTitle.getText();
     String auteur = txtAuthor.getText();
@@ -239,6 +261,7 @@ public class GestionBibliothequeApp extends Application {
 
         layout.getChildren().addAll(lblCode, txtCode, btnSearch, btnEdit);
         Scene scene = new Scene(layout, 650, 500);
+        scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
         editBookStage.setScene(scene);
         editBookStage.show();
     }
@@ -255,7 +278,7 @@ public class GestionBibliothequeApp extends Application {
         TextField txtCode = new TextField();
         Button btnDelete = new Button("Supprimer");
 
-        btnDelete.setOnAction(e -> {
+        btnDelete.setOnAction(_ -> {
             String code = txtCode.getText();
             try (Connection conn = DatabaseConnection.getConnection()) {
                 String sql = "DELETE FROM livres WHERE code_livre = ?";
@@ -280,6 +303,7 @@ public class GestionBibliothequeApp extends Application {
 
         layout.getChildren().addAll(lblCode, txtCode, btnDelete);
         Scene scene = new Scene(layout, 650, 500);
+        scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
         deleteBookStage.setScene(scene);
         deleteBookStage.show();
     }
@@ -297,7 +321,7 @@ public class GestionBibliothequeApp extends Application {
         TextField txtSearch = new TextField();
         Button btnSearch = new Button("Rechercher");
 
-        btnSearch.setOnAction(e -> {
+        btnSearch.setOnAction(_ -> {
             String searchText = txtSearch.getText();
             try (Connection conn = DatabaseConnection.getConnection()) {
                 String sql = "SELECT * FROM livres WHERE titre LIKE ? OR auteur LIKE ? OR categorie LIKE ?";
@@ -315,11 +339,10 @@ public class GestionBibliothequeApp extends Application {
 
         layout.getChildren().addAll(lblSearch, txtSearch, btnSearch);
         Scene scene = new Scene(layout, 650, 500);
+        scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
         searchBookStage.setScene(scene);
         searchBookStage.show();
     }
-
-
 
 
     // 5. إدارة الطلاب
@@ -332,14 +355,15 @@ public class GestionBibliothequeApp extends Application {
         Button btnDelete = new Button("Supprimer un étudiant");
         Button btnList = new Button("Afficher la liste des étudiants");
         layout.setAlignment(Pos.CENTER);  
-        btnAdd.setOnAction(e -> openAddStudentWindow());
-        btnEdit.setOnAction(e -> openEditStudentWindow());
-        btnDelete.setOnAction(e -> openDeleteStudentWindow());
-        btnList.setOnAction(e -> openListStudentsWindow());
+        btnAdd.setOnAction(_ -> openAddStudentWindow());
+        btnEdit.setOnAction(_ -> openEditStudentWindow());
+        btnDelete.setOnAction(_ -> openDeleteStudentWindow());
+        btnList.setOnAction(_ -> openListStudentsWindow());
         
         layout.getChildren().addAll(btnAdd, btnEdit, btnDelete, btnList);
         layout.setPadding(new Insets(20));
         Scene scene = new Scene(layout, 600, 500);
+        scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
         studentStage.setScene(scene);
         studentStage.show();
     }
@@ -380,7 +404,7 @@ public class GestionBibliothequeApp extends Application {
     );
 
     // التعامل مع الضغط على الزر
-    btnSubmit.setOnAction(e -> {
+    btnSubmit.setOnAction(_ -> {
         String id = txtID.getText();
         String nom = txtNom.getText();
         String prenom = txtPrenom.getText();
@@ -410,6 +434,7 @@ public class GestionBibliothequeApp extends Application {
     });
 
     Scene scene = new Scene(layout, 650, 650);
+    scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
     addStudentStage.setScene(scene);
     addStudentStage.show();
 }
@@ -448,7 +473,7 @@ public class GestionBibliothequeApp extends Application {
     grid.add(btnSubmit, 1, 5);
 
     // زر التعديل - منطق القاعدة
-    btnSubmit.setOnAction(e -> {
+    btnSubmit.setOnAction(_ -> {
         String id = txtID.getText();
 
         try (Connection conn = DatabaseConnection.getConnection()) {
@@ -488,6 +513,7 @@ public class GestionBibliothequeApp extends Application {
 
     // إعداد المشهد
     Scene scene = new Scene(grid, 400, 300);
+    scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
     stage.setScene(scene);
     stage.show();
 }
@@ -502,7 +528,7 @@ public class GestionBibliothequeApp extends Application {
         TextField txtID = new TextField();
         Button btnDelete = new Button("Supprimer");
 
-        btnDelete.setOnAction(e -> {
+        btnDelete.setOnAction(_ -> {
             String id = txtID.getText();
             try (Connection conn = DatabaseConnection.getConnection()) {
                 String sql = "DELETE FROM etudiants WHERE num_etudiant = ?";
@@ -525,6 +551,7 @@ public class GestionBibliothequeApp extends Application {
 
         layout.getChildren().addAll(lblID, txtID, btnDelete);
         Scene scene = new Scene(layout, 600, 500);
+        scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
         deleteStudentStage.setScene(scene);
         deleteStudentStage.show();
     }
@@ -566,6 +593,7 @@ public class GestionBibliothequeApp extends Application {
     layout.getChildren().add(studentsListView);
 
     Scene scene = new Scene(layout, 700, 600);
+    scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
     listStudentsStage.setScene(scene);
     listStudentsStage.show();
 }
@@ -603,7 +631,7 @@ public class GestionBibliothequeApp extends Application {
 
     // Bouton
     Button btnSubmit = new Button("Valider l'emprunt");
-    btnSubmit.setOnAction(e -> {
+    btnSubmit.setOnAction(_ -> {
         String studentId = cmbStudents.getValue();
         String bookId = cmbBooks.getValue();
         LocalDate date = datePicker.getValue();
@@ -667,6 +695,7 @@ public class GestionBibliothequeApp extends Application {
     );
 
     Scene scene = new Scene(layout, 350, 400);
+    scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
     stage.setScene(scene);
     stage.show();
 }
@@ -690,7 +719,7 @@ public class GestionBibliothequeApp extends Application {
         // Bouton
         Button btnReturn = new Button("Valider le retour");
     
-        btnReturn.setOnAction(e -> {
+        btnReturn.setOnAction(_ -> {
             String studentId = cmbStudents.getValue();
             String bookId = cmbBooks.getValue();
     
@@ -736,7 +765,7 @@ public class GestionBibliothequeApp extends Application {
                 cmbStudents.getItems().add(rsStudents.getString("num_etudiant"));
             }
     
-            cmbStudents.setOnAction(ev -> {
+            cmbStudents.setOnAction(_ -> {
                 cmbBooks.getItems().clear();
                 try {
                     String selectedStudent = cmbStudents.getValue();
@@ -760,11 +789,58 @@ public class GestionBibliothequeApp extends Application {
         layout.getChildren().addAll(lblStudent, cmbStudents, lblBook, cmbBooks, btnReturn);
     
         Scene scene = new Scene(layout, 350, 300);
+        scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    private void showLateReturns() {
+        Stage stage = new Stage();
+        stage.setTitle("Livres en retard");
+    
+        VBox layout = new VBox(15);
+        layout.setPadding(new Insets(20));
+        ListView<String> listView = new ListView<>();
+        ObservableList<String> items = FXCollections.observableArrayList();
+    
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            String sql = "SELECT l.titre, e.nom, e.prenom, em.date_emprunt, em.duree_jours " +
+                         "FROM emprunts em " +
+                         "JOIN etudiants e ON em.num_etudiant = e.num_etudiant " +
+                         "JOIN livres l ON em.code_livre = l.code_livre " +
+                         "WHERE SYSDATE > em.date_emprunt + em.duree_jours";
+    
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            ResultSet rs = pstmt.executeQuery();
+    
+            while (rs.next()) {
+                String info = "📘 " + rs.getString("titre") +
+                              " | 👤 " + rs.getString("nom") + " " + rs.getString("prenom") +
+                              " | Emprunté le: " + rs.getDate("date_emprunt") +
+                              " | Durée: " + rs.getInt("duree_jours") + " j";
+                items.add(info);
+            }
+    
+            if (items.isEmpty()) {
+                items.add("Aucun livre en retard. 🎉");
+            }
+    
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Erreur lors de la récupération des données.").showAndWait();
+        }
+    
+        listView.setItems(items);
+        layout.getChildren().add(listView);
+        Scene scene = new Scene(layout, 650, 400);
+        scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
         stage.setScene(scene);
         stage.show();
     }
     
     
+    
+
     public static void main(String[] args) {
         launch(args);
         Connection conn = DatabaseConnection.getConnection();
