@@ -1,16 +1,20 @@
+/*  Style général de la scène */
 .root {
-  -fx-font-family: "Segoe UI", sans-serif;
+  -fx-font-family: "Segoe UI", sans-serif;/* Police principale */
   -fx-background-color: #010d0e;
 }
-
+/* Style des étiquettes */
 .label {
-  -fx-text-fill: #dc9be2;
+  -fx-text-fill: #dc9be2; /* Couleur du texte violet clair */
   -fx-font-size: 16px;
 }
+
 .main-buttons {
   -fx-alignment: center;        
   -fx-spacing: 20px;            
 }
+
+/*  Style général des boutons */
 .button {
   -fx-background-color: #820692;
   -fx-text-fill: rgb(0, 0, 0);
@@ -23,15 +27,17 @@
   -fx-alignment: center; 
   
 }
+/* Boutons centrés avec espacement */
 .centered-button {
   -fx-alignment: center;        
   -fx-spacing: 15px;           
 }
-
+/*  Effet de survol sur les boutons */
 .button:hover {
   -fx-background-color: #b48bb4;
 }
 
+/*  Style des champs de texte et listes déroulantes */
 .text-field, .combo-box {
   -fx-background-color: rgb(235, 144, 253);
   -fx-border-color: #ccc;
@@ -39,3 +45,9 @@
   -fx-padding: 5 8;
   
 }
+
+.text-field:focused, .combo-box:focused {
+  -fx-border-color: #ff80ff;
+  -fx-effect: dropshadow(gaussian, #ffb3ff, 5, 0.5, 0, 0);
+}
+

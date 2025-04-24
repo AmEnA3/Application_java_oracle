@@ -1,3 +1,4 @@
+-- Table des livres
 CREATE TABLE livres (
     id_livre NUMBER PRIMARY KEY,
     code_livre VARCHAR2(20) PRIMARY KEY,
@@ -7,7 +8,7 @@ CREATE TABLE livres (
     annee_publication NUMBER(4) ,
     quantite_disponible NUMBER 
 );
-
+-- Table des étudiants
 CREATE TABLE etudiants (
     num_etudiant VARCHAR2(20) PRIMARY KEY,
     nom VARCHAR2(50) ,
@@ -15,10 +16,7 @@ CREATE TABLE etudiants (
     email VARCHAR2(100),
     telephone VARCHAR2(20)
 );
-
-
-
-
+-- Table des emprunts
 CREATE TABLE emprunts (
     id_emprunt NUMBER PRIMARY KEY,
     num_etudiant NUMBER REFERENCES etudiants(num_etudiant),
@@ -26,16 +24,3 @@ CREATE TABLE emprunts (
     date_emprunt DATE,
     duree_emprunt NUMBER
 );
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -151,8 +151,9 @@ public class GestionBibliothequeApp extends Application {
             pstmt.setString(4, categorie);
             pstmt.setInt(5, annee);
             pstmt.setInt(6, quantite);
+             // Exécute la requête d'insertion et retourne le nombre de lignes insérées.
             int rowsInserted = pstmt.executeUpdate();
-
+             // Si au moins une ligne a été insérée, affiche une alerte de succès et ferme la fenêtre d'ajout.
             if (rowsInserted > 0) {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION, "Livre ajouté avec succès !");
                 alert.showAndWait();
@@ -171,23 +172,16 @@ public class GestionBibliothequeApp extends Application {
     addBookStage.show();
 
 }
-        
-        
-    // 2. تعديل كتاب
-    private void openEditBookWindow() {
-        
 
+    private void openEditBookWindow() {
         Stage editBookStage = new Stage();
         editBookStage.setTitle("Modifier un livre");
-
         VBox layout = new VBox(20);
         layout.setPadding(new Insets(20));
-
         Label lblCode = new Label("Code du livre à modifier:");
-        
         Button btnSearch = new Button("Rechercher");
         Button btnEdit = new Button("Modifier");
-
+         // Rechercher les données du livre
         btnSearch.setOnAction(_ -> {
             String code = txtCode.getText();
             try (Connection conn = DatabaseConnection.getConnection()) {
@@ -197,7 +191,7 @@ public class GestionBibliothequeApp extends Application {
                 ResultSet rs = stmt.executeQuery();
             
                 if (rs.next()) {
-                    // تعبئة الحقول من قاعدة البيانات
+                   // Remplir les champs avec les données récupérées
                     txtTitle.setText(rs.getString("titre"));
                     txtAuthor.setText(rs.getString("auteur"));
                     txtCategory.setText(rs.getString("categorie"));
@@ -214,22 +208,21 @@ public class GestionBibliothequeApp extends Application {
             }
             
         });
-
+        // Mettre à jour les données du livre
         btnEdit.setOnAction(_ -> {
-    String code = txtCode.getText();
-    String titre = txtTitle.getText();
-    String auteur = txtAuthor.getText();
-    String categorie = txtCategory.getText();
-    String annee = txtYear.getText();
-    String quantite = txtQuantity.getText();
+           String code = txtCode.getText();
+           String titre = txtTitle.getText();
+           String auteur = txtAuthor.getText();
+           String categorie = txtCategory.getText();
+           String annee = txtYear.getText();
+           String quantite = txtQuantity.getText();
 
     if (code.isEmpty() || titre.isEmpty() || auteur.isEmpty() || categorie.isEmpty() || annee.isEmpty() || quantite.isEmpty()) {
         Alert alert = new Alert(Alert.AlertType.WARNING, "Veuillez remplir tous les champs !");
         alert.showAndWait();
         return;
     }
-
-    try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+   try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
         String sql = "UPDATE livres SET titre = ?, auteur = ?, categorie = ?, annee_publication = ?, quantite_disponible = ? WHERE code_livre = ?";
         PreparedStatement stmt = conn.prepareStatement(sql);
         stmt.setString(1, titre);
@@ -257,16 +250,19 @@ public class GestionBibliothequeApp extends Application {
         alert.showAndWait();
     }
 });
-
-
         layout.getChildren().addAll(lblCode, txtCode, btnSearch, btnEdit);
         Scene scene = new Scene(layout, 650, 500);
         scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
         editBookStage.setScene(scene);
         editBookStage.show();
     }
-    
-     // 3. حذف كتاب
+    /**
+ * Ouvre une fenêtre permettant de supprimer un livre de la base de données.
+ * L'utilisateur saisit le code du livre à supprimer dans un champ de texte,
+ * puis clique sur le bouton "Supprimer".
+ * Si le livre existe, il est supprimé de la base de données,
+ * sinon une alerte informe que le livre n'a pas été trouvé.
+ */
     private void openDeleteBookWindow() {
         Stage deleteBookStage = new Stage();
         deleteBookStage.setTitle("Supprimer un livre");
@@ -307,9 +303,10 @@ public class GestionBibliothequeApp extends Application {
         deleteBookStage.setScene(scene);
         deleteBookStage.show();
     }
-
-    
-    // 4. بحث عن كتاب
+   /**
+ * Ouvre une fenêtre qui permet à l'utilisateur de rechercher des livres
+ * dans la base de données en fonction du titre, de l'auteur ou de la catégorie.
+ */
     private void openSearchBookWindow() {
         Stage searchBookStage = new Stage();
         searchBookStage.setTitle("Rechercher un livre");
@@ -329,14 +326,14 @@ public class GestionBibliothequeApp extends Application {
                 pstmt.setString(1, "%" + searchText + "%");
                 pstmt.setString(2, "%" + searchText + "%");
                 pstmt.setString(3, "%" + searchText + "%");
+                // Exécution de la requête
                 ResultSet rs = pstmt.executeQuery();
-
-                // التعامل مع النتائج هنا (مثلا عرض النتائج في ListView أو في نافذة جديدة)
+            // 👉 Ici, vous pouvez ajouter un affichage des résultats (ListView, TableView, etc.)
+            // Exemple : afficher les titres récupérés dans la console ou dans une liste visuelle.
             } catch (SQLException ex) {
-                ex.printStackTrace();
+                ex.printStackTrace();// Affiche l'erreur dans la console (utile pour le débogage)
             }
         });
-
         layout.getChildren().addAll(lblSearch, txtSearch, btnSearch);
         Scene scene = new Scene(layout, 650, 500);
         scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
@@ -344,8 +341,6 @@ public class GestionBibliothequeApp extends Application {
         searchBookStage.show();
     }
 
-
-    // 5. إدارة الطلاب
     private void openManageStudentsWindow() {
         Stage studentStage = new Stage();
         studentStage.setTitle("Gestion des étudiants");
@@ -442,24 +437,20 @@ public class GestionBibliothequeApp extends Application {
     private void openEditStudentWindow() {
     Stage stage = new Stage();
     stage.setTitle("Modifier Étudiant");
-
-    // إنشاء الحقول
+    // Création des champs
     TextField txtID = new TextField();
     TextField txtNom = new TextField();
     TextField txtPrenom = new TextField();
     TextField txtEmail = new TextField();
     TextField txtTelephone = new TextField();
-
-    // زر التعديل
+    // Bouton de modification
     Button btnSubmit = new Button("Modifier");
-
-    // الشبكة
+    // Mise en place du GridPane
     GridPane grid = new GridPane();
     grid.setPadding(new Insets(20));
     grid.setVgap(10);
     grid.setHgap(10);
-
-    // إضافة العناصر إلى الواجهة
+    // Ajout des éléments à la fenêtre
     grid.add(new Label("Numéro Étudiant :"), 0, 0);
     grid.add(txtID, 1, 0);
     grid.add(new Label("Nom :"), 0, 1);
@@ -471,8 +462,7 @@ public class GestionBibliothequeApp extends Application {
     grid.add(new Label("Téléphone :"), 0, 4);
     grid.add(txtTelephone, 1, 4);
     grid.add(btnSubmit, 1, 5);
-
-    // زر التعديل - منطق القاعدة
+   // Action du bouton de modification
     btnSubmit.setOnAction(_ -> {
         String id = txtID.getText();
 
@@ -483,7 +473,7 @@ public class GestionBibliothequeApp extends Application {
             ResultSet rs = pstmt.executeQuery();
 
             if (rs.next()) {
-                // تعديل البيانات
+                // Récupération des données modifiées
                 String nom = txtNom.getText();
                 String prenom = txtPrenom.getText();
                 String email = txtEmail.getText();
@@ -510,8 +500,7 @@ public class GestionBibliothequeApp extends Application {
             alert.showAndWait();
         }
     });
-
-    // إعداد المشهد
+   // Création de la scène et affichage
     Scene scene = new Scene(grid, 400, 300);
     scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
     stage.setScene(scene);
@@ -536,6 +525,7 @@ public class GestionBibliothequeApp extends Application {
                 pstmt.setString(1, id);
                 int rowsDeleted = pstmt.executeUpdate();
                 if (rowsDeleted > 0) {
+                    // Option de stocker les commentaires dans la base de données si nécessaire
                     Alert alert = new Alert(Alert.AlertType.INFORMATION, "Étudiant supprimé avec succès !");
                     alert.showAndWait();
                 } else {
@@ -556,15 +546,14 @@ public class GestionBibliothequeApp extends Application {
         deleteStudentStage.show();
     }
 
-    // 5. عرض قائمة الطلاب
+   // 5. Affichage de la Liste des Étudiants
     private void openListStudentsWindow() {
     Stage listStudentsStage = new Stage();
     listStudentsStage.setTitle("Liste des étudiants");
 
     VBox layout = new VBox(20);
     ListView<String> studentsListView = new ListView<>();
-    
-    // إنشاء ObservableList لاحتواء بيانات الطلاب
+    // Création d'une ObservableList pour contenir les données des étudiants
     ObservableList<String> studentsList = FXCollections.observableArrayList();
 
     try (Connection conn = DatabaseConnection.getConnection()) {
@@ -572,7 +561,7 @@ public class GestionBibliothequeApp extends Application {
         PreparedStatement pstmt = conn.prepareStatement(sql);
         ResultSet rs = pstmt.executeQuery();
         
-        // استرجاع بيانات الطلاب من قاعدة البيانات وإضافتها إلى ObservableList
+        // Parcours des résultats et ajout des informations des étudiants à la liste ObservableList
         while (rs.next()) {
             String studentInfo = "ID: " + rs.getString("num_etudiant") + 
                                  ", Nom: " + rs.getString("nom") + 
@@ -583,52 +572,38 @@ public class GestionBibliothequeApp extends Application {
         }
     } catch (Exception ex) {
         ex.printStackTrace();
+        // En cas d'erreur, affichage d'une alerte
         Alert alert = new Alert(Alert.AlertType.ERROR, "Erreur lors de la récupération des étudiants !");
         alert.showAndWait();
     }
 
-    // إضافة الطلاب إلى ListView
+    // Affectation des données des étudiants à ListView
     studentsListView.setItems(studentsList);
-
     layout.getChildren().add(studentsListView);
-
+    // Création et affichage de la scène
     Scene scene = new Scene(layout, 700, 600);
     scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
     listStudentsStage.setScene(scene);
     listStudentsStage.show();
 }
-
-    
-
-
-
-
-
     // 6. Emprunter un livre
-    
     private void openBorrowWindow() {
     Stage stage = new Stage();
     stage.setTitle("Nouvel Emprunt");
-
-    VBox layout = new VBox(10);
+   VBox layout = new VBox(10);
     layout.setPadding(new Insets(15));
-
     // Étudiant
     Label lblStudent = new Label("Étudiant :");
     ComboBox<String> cmbStudents = new ComboBox<>();
-
     // Livre
     Label lblBook = new Label("Livre :");
     ComboBox<String> cmbBooks = new ComboBox<>();
-
     // Date d'emprunt
     Label lblDate = new Label("Date d'emprunt :");
     DatePicker datePicker = new DatePicker(LocalDate.now());
-
     // Durée
     Label lblDuree = new Label("Durée (en jours) :");
     TextField txtDuree = new TextField();
-
     // Bouton
     Button btnSubmit = new Button("Valider l'emprunt");
     btnSubmit.setOnAction(_ -> {
@@ -700,25 +675,20 @@ public class GestionBibliothequeApp extends Application {
     stage.show();
 }
 
-    
+    //7.Return livre
     private void openReturnWindow() {
         Stage stage = new Stage();
         stage.setTitle("Retour de Livre");
-    
         VBox layout = new VBox(10);
         layout.setPadding(new Insets(15));
-    
         // Étudiant
         Label lblStudent = new Label("Étudiant :");
         ComboBox<String> cmbStudents = new ComboBox<>();
-    
         // Livre
         Label lblBook = new Label("Livre :");
         ComboBox<String> cmbBooks = new ComboBox<>();
-    
         // Bouton
         Button btnReturn = new Button("Valider le retour");
-    
         btnReturn.setOnAction(_ -> {
             String studentId = cmbStudents.getValue();
             String bookId = cmbBooks.getValue();
@@ -793,7 +763,7 @@ public class GestionBibliothequeApp extends Application {
         stage.setScene(scene);
         stage.show();
     }
-
+    // 8. Affichage des livres empruntés en retard
     private void showLateReturns() {
         Stage stage = new Stage();
         stage.setTitle("Livres en retard");
@@ -813,15 +783,15 @@ public class GestionBibliothequeApp extends Application {
             PreparedStatement pstmt = conn.prepareStatement(sql);
             ResultSet rs = pstmt.executeQuery();
     
-            while (rs.next()) {
+            while (rs.next()) {// Parcours des résultats
                 String info = "📘 " + rs.getString("titre") +
                               " | 👤 " + rs.getString("nom") + " " + rs.getString("prenom") +
                               " | Emprunté le: " + rs.getDate("date_emprunt") +
                               " | Durée: " + rs.getInt("duree_jours") + " j";
-                items.add(info);
+                items.add(info);// Ajout des informations à la liste observable
             }
     
-            if (items.isEmpty()) {
+            if (items.isEmpty()) {// Si aucun livre n'est en retard, afficher un message
                 items.add("Aucun livre en retard. 🎉");
             }
     
@@ -830,8 +800,9 @@ public class GestionBibliothequeApp extends Application {
             new Alert(Alert.AlertType.ERROR, "Erreur lors de la récupération des données.").showAndWait();
         }
     
-        listView.setItems(items);
-        layout.getChildren().add(listView);
+        listView.setItems(items);  // Affectation de la liste des livres en retard à la ListView
+        layout.getChildren().add(listView);  // Ajout de la ListView au layout
+        // Création et affichage de la scène
         Scene scene = new Scene(layout, 650, 400);
         scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
         stage.setScene(scene);
@@ -842,9 +813,9 @@ public class GestionBibliothequeApp extends Application {
     
 
     public static void main(String[] args) {
-        launch(args);
-        Connection conn = DatabaseConnection.getConnection();
-        if (conn != null) {
+        launch(args);// Lancement de l'application JavaFX
+        Connection conn = DatabaseConnection.getConnection();// Tentative de connexion à la base de données
+        if (conn != null) {// Vérification si la connexion est réussie
             System.out.println("La connexion fonctionne !");
   
         }
