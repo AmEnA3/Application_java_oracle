@@ -59,8 +59,8 @@ This is a desktop application developed using **JavaFX** that allows users to ma
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git
-cd YOUR_REPO
+git clone https://github.com/AmEnA3/Application_java_oracle.git
+cd Application_java_oracle
 ```
 
 2. **Ensure you have Java JDK and Oracle DB installed**
