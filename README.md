@@ -97,6 +97,6 @@ This project is for educational purposes and free to use and modify.
 
 ## 🙌 Author
 
-Developed by **[Your Name]** as part of a database management project.
+Developed by **[AmEnA3]** as part of a database management project.
 Feel free to fork and contribute!
 
