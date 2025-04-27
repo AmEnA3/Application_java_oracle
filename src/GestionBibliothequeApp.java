@@ -9,29 +9,32 @@
  */
 
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.LocalDate;
-import java.sql.Statement;
-import javafx.application.Application;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
+import java.sql.Connection;// Importation de la classe Connection
+import java.sql.DriverManager;// Importation de la classe DriverManager
+import java.sql.PreparedStatement;// Importation de la classe PreparedStatement
+import java.sql.ResultSet;// Importation de la classe ResultSet
+import java.sql.SQLException;// Importation de la classe SQLException
+import java.time.LocalDate;// Importation de la classe LocalDate
+import java.sql.Statement;// Importation de la classe Statement
+import javafx.application.Application;// Importation de la classe Application
+import javafx.collections.FXCollections;// Importation de la classe FXCollections
+import javafx.collections.ObservableList;// Importation de la classe ObservableList
+import javafx.geometry.Insets;// Importation de la classe Insets
+import javafx.geometry.Pos;// Importation de la classe Pos
+import javafx.scene.Scene;//    Importation de la classe Scene
+import javafx.scene.control.*;// Importation de la classe Button
+import javafx.scene.layout.GridPane;// Importation de la classe GridPane
+import javafx.scene.layout.VBox;// Importation de la classe VBox
+import javafx.stage.Stage;// Importation de la classe Stage
 
 public class GestionBibliothequeApp extends Application {
-    private static final String URL = "jdbc:oracle:thin:@localhost:1521:xe"; // تأكد من تغيير اسم السيرفر وقاعدة البيانات
+    // Paramètres de connexion à la base de données
+    private static final String URL = "jdbc:oracle:thin:@localhost:1521:xe"; 
+    //private static final String URL = "jdbc:oracle:thin:@localhost:1521:xe";
     private static final String USER = "probdd"; 
+    //private static final String USER = "probdd";
     private static final String PASSWORD = "probddpass";  
-
+        // Création des champs de saisie
         TextField txtCode = new TextField();
         TextField txtTitle = new TextField();
         TextField txtAuthor = new TextField();
@@ -40,6 +43,7 @@ public class GestionBibliothequeApp extends Application {
         TextField txtQuantity = new TextField();
     @Override
     public void start(Stage primaryStage) {
+        // Création de la fenêtre principale
         primaryStage.setTitle("Gestion de la Bibliothèque");
         
        // Création des boutons de navigation principale
@@ -141,9 +145,11 @@ public class GestionBibliothequeApp extends Application {
         String categorie = txtCategory.getText();
         int annee = Integer.parseInt(txtYear.getText());
         int quantite = Integer.parseInt(txtQuantity.getText());
-
+        // Insérer le livre dans la base de données
         try (Connection conn = DatabaseConnection.getConnection()) {
+            // Création de la requête SQL
             String sql = "INSERT INTO livres (code_livre, titre, auteur, categorie, annee_publication, quantite_disponible) VALUES (?, ?, ?, ?, ?, ?)";
+            // Création du statement
             var pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, code);
             pstmt.setString(2, titre);
@@ -172,7 +178,7 @@ public class GestionBibliothequeApp extends Application {
     addBookStage.show();
 
 }
-
+    // Ouvre une fenêtre pour modifier un livre dans la base de données
     private void openEditBookWindow() {
         Stage editBookStage = new Stage();
         editBookStage.setTitle("Modifier un livre");
@@ -185,8 +191,11 @@ public class GestionBibliothequeApp extends Application {
         btnSearch.setOnAction(_ -> {
             String code = txtCode.getText();
             try (Connection conn = DatabaseConnection.getConnection()) {
+                // Création de la requête SQL
                 String sql = "SELECT * FROM livres WHERE code_livre = ?";
+                // Création du statement
                 PreparedStatement stmt = conn.prepareStatement(sql);
+                // Remplir les paramètres de la requête
                 stmt.setString(1, txtCode.getText());
                 ResultSet rs = stmt.executeQuery();
             
@@ -201,10 +210,11 @@ public class GestionBibliothequeApp extends Application {
                     Alert alert = new Alert(Alert.AlertType.WARNING, "Livre non trouvé !");
                     alert.showAndWait();
                 }
+                // Fermer le statement et la connexion
             } catch (SQLException ex) {
                 ex.printStackTrace();
                 Alert alert = new Alert(Alert.AlertType.ERROR, "Erreur lors de la recherche !");
-                alert.showAndWait();
+                alert.showAndWait();// Fermer le statement et la connexion
             }
             
         });
@@ -222,7 +232,9 @@ public class GestionBibliothequeApp extends Application {
         alert.showAndWait();
         return;
     }
+    // Mettre à jour les données du livre
    try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+        // Création de la requête SQL
         String sql = "UPDATE livres SET titre = ?, auteur = ?, categorie = ?, annee_publication = ?, quantite_disponible = ? WHERE code_livre = ?";
         PreparedStatement stmt = conn.prepareStatement(sql);
         stmt.setString(1, titre);
@@ -231,7 +243,7 @@ public class GestionBibliothequeApp extends Application {
         stmt.setInt(4, Integer.parseInt(annee));
         stmt.setInt(5, Integer.parseInt(quantite));
         stmt.setString(6, code);
-
+        // Exécuter la requête de mise à jour
         int rowsAffected = stmt.executeUpdate();
         if (rowsAffected > 0) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "Livre modifié avec succès !");
@@ -241,7 +253,7 @@ public class GestionBibliothequeApp extends Application {
             alert.showAndWait();
         }
 
-    } catch (SQLException ex) {
+    } catch (SQLException ex) {// Afficher une alerte en cas d'erreur
         ex.printStackTrace();
         Alert alert = new Alert(Alert.AlertType.ERROR, "Erreur lors de la modification !");
         alert.showAndWait();
@@ -273,15 +285,18 @@ public class GestionBibliothequeApp extends Application {
         Label lblCode = new Label("Code du livre à supprimer:");
         TextField txtCode = new TextField();
         Button btnDelete = new Button("Supprimer");
-
+        // Supprimer le livre
         btnDelete.setOnAction(_ -> {
             String code = txtCode.getText();
+            // Supprimer le livre de la base de données
             try (Connection conn = DatabaseConnection.getConnection()) {
+                // Création de la requête SQL
                 String sql = "DELETE FROM livres WHERE code_livre = ?";
+                // Exécuter la requête
                 var pstmt = conn.prepareStatement(sql);
                 pstmt.setString(1, code);
                 int rowsDeleted = pstmt.executeUpdate();
-
+                // Afficher un message de confirmation
                 if (rowsDeleted > 0) {
                     Alert alert = new Alert(Alert.AlertType.INFORMATION, "Livre supprimé avec succès !");
                     alert.showAndWait();
@@ -308,19 +323,21 @@ public class GestionBibliothequeApp extends Application {
  * dans la base de données en fonction du titre, de l'auteur ou de la catégorie.
  */
     private void openSearchBookWindow() {
+        // Création de la fenêtre
         Stage searchBookStage = new Stage();
         searchBookStage.setTitle("Rechercher un livre");
-
+        // Création du layout
         VBox layout = new VBox(20);
         layout.setPadding(new Insets(20));
 
         Label lblSearch = new Label("Rechercher par titre, auteur, ou catégorie:");
         TextField txtSearch = new TextField();
         Button btnSearch = new Button("Rechercher");
-
+        // Action de recherche
         btnSearch.setOnAction(_ -> {
             String searchText = txtSearch.getText();
             try (Connection conn = DatabaseConnection.getConnection()) {
+                // Création de la requête SQL
                 String sql = "SELECT * FROM livres WHERE titre LIKE ? OR auteur LIKE ? OR categorie LIKE ?";
                 var pstmt = conn.prepareStatement(sql);
                 pstmt.setString(1, "%" + searchText + "%");
@@ -328,7 +345,7 @@ public class GestionBibliothequeApp extends Application {
                 pstmt.setString(3, "%" + searchText + "%");
                 // Exécution de la requête
                 ResultSet rs = pstmt.executeQuery();
-            // 👉 Ici, vous pouvez ajouter un affichage des résultats (ListView, TableView, etc.)
+            //Ici, vous pouvez ajouter un affichage des résultats (ListView, TableView, etc.)
             // Exemple : afficher les titres récupérés dans la console ou dans une liste visuelle.
             } catch (SQLException ex) {
                 ex.printStackTrace();// Affiche l'erreur dans la console (utile pour le débogage)
@@ -340,7 +357,7 @@ public class GestionBibliothequeApp extends Application {
         searchBookStage.setScene(scene);
         searchBookStage.show();
     }
-
+    // window Gérer les étudiants
     private void openManageStudentsWindow() {
         Stage studentStage = new Stage();
         studentStage.setTitle("Gestion des étudiants");
@@ -354,7 +371,7 @@ public class GestionBibliothequeApp extends Application {
         btnEdit.setOnAction(_ -> openEditStudentWindow());
         btnDelete.setOnAction(_ -> openDeleteStudentWindow());
         btnList.setOnAction(_ -> openListStudentsWindow());
-        
+        // Ajout des boutons au layout
         layout.getChildren().addAll(btnAdd, btnEdit, btnDelete, btnList);
         layout.setPadding(new Insets(20));
         Scene scene = new Scene(layout, 600, 500);
@@ -364,7 +381,7 @@ public class GestionBibliothequeApp extends Application {
     }
     
     
-   
+    // window Ajouter un nouvel étudiant
     private void openAddStudentWindow() {
         Stage addStudentStage = new Stage();
         addStudentStage.setTitle("Ajouter un étudiant");
@@ -398,14 +415,14 @@ public class GestionBibliothequeApp extends Application {
         btnSubmit
     );
 
-    // التعامل مع الضغط على الزر
+    // Ajouter un nouvel étudiant
     btnSubmit.setOnAction(_ -> {
         String id = txtID.getText();
         String nom = txtNom.getText();
         String prenom = txtPrenom.getText();
         String email = txtEmail.getText();
         String tel = txtTel.getText();
-
+        // Exécuter la requête
         try (Connection conn = DatabaseConnection.getConnection()) {
             String sql = "INSERT INTO etudiants (num_etudiant, nom, prenom, email, telephone) VALUES (?, ?, ?, ?, ?)";
             var pstmt = conn.prepareStatement(sql);
@@ -415,7 +432,7 @@ public class GestionBibliothequeApp extends Application {
             pstmt.setString(4, email);
             pstmt.setString(5, tel);
             int rowsInserted = pstmt.executeUpdate();
-
+            // Exécuter la requête
             if (rowsInserted > 0) {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION, "Étudiant ajouté avec succès !");
                 alert.showAndWait();
@@ -427,13 +444,13 @@ public class GestionBibliothequeApp extends Application {
             alert.showAndWait();
         }
     });
-
+    // Affichage de la fenêtre
     Scene scene = new Scene(layout, 650, 650);
     scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
     addStudentStage.setScene(scene);
     addStudentStage.show();
 }
-
+    // Modifier un étudiant
     private void openEditStudentWindow() {
     Stage stage = new Stage();
     stage.setTitle("Modifier Étudiant");
@@ -465,7 +482,7 @@ public class GestionBibliothequeApp extends Application {
    // Action du bouton de modification
     btnSubmit.setOnAction(_ -> {
         String id = txtID.getText();
-
+        // Exécuter la requête
         try (Connection conn = DatabaseConnection.getConnection()) {
             String sql = "SELECT * FROM etudiants WHERE num_etudiant = ?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -507,16 +524,16 @@ public class GestionBibliothequeApp extends Application {
     stage.show();
 }
 
-    
+    /** Ouvre une fenêtre permettant de supprimer un étudiant de la base de données. */
     private void openDeleteStudentWindow() {
         Stage deleteStudentStage = new Stage();
         deleteStudentStage.setTitle("Supprimer un étudiant");
-
+        // Création du layout
         VBox layout = new VBox(20);
         Label lblID = new Label("ID de l'étudiant à supprimer:");
         TextField txtID = new TextField();
         Button btnDelete = new Button("Supprimer");
-
+        // Action du bouton de suppression
         btnDelete.setOnAction(_ -> {
             String id = txtID.getText();
             try (Connection conn = DatabaseConnection.getConnection()) {
@@ -538,7 +555,7 @@ public class GestionBibliothequeApp extends Application {
                 alert.showAndWait();
             }
         });
-
+        // Ajout des éléments à la fenêtre
         layout.getChildren().addAll(lblID, txtID, btnDelete);
         Scene scene = new Scene(layout, 600, 500);
         scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
@@ -550,7 +567,7 @@ public class GestionBibliothequeApp extends Application {
     private void openListStudentsWindow() {
     Stage listStudentsStage = new Stage();
     listStudentsStage.setTitle("Liste des étudiants");
-
+    // Création du layout
     VBox layout = new VBox(20);
     ListView<String> studentsListView = new ListView<>();
     // Création d'une ObservableList pour contenir les données des étudiants
